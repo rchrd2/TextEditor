@@ -4,6 +4,11 @@ TextEditor is an extremely basic plain text editing application for SandstormIO 
 
 ## Usage
 
+- Go to [./releases](https://github.com/rchrd2/TextEditor/releases) and download `TextEditor.spk`.
+- Upload to your sandstorm server and create a new document.
+
+
+Testing it out locally:
 ```
 meteor serve
 ```
