@@ -1,21 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="150px"
-	 height="150px" viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">
-<g id="Layer_1" display="none">
-	<polygon display="inline" fill="#FFFFFF" stroke="#000000" stroke-width="3" stroke-miterlimit="10" points="126.5,138.5 76,138.5 
-		25.5,138.5 25.5,75 25.5,11.5 76,11.5 126.5,11.5 126.5,75 	"/>
-	<path display="inline" fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" d="M105.333,11.5l20.5,20.5
-		L105.333,11.5z"/>
-	<path display="inline" fill="#FFFFFF" stroke="#000000" stroke-width="3" stroke-miterlimit="10" d="M105.333,11.5L126.5,32
-		L105.333,11.5z"/>
-</g>
-<g id="Layer_2">
-	<circle display="none" fill="#D8E6EB" cx="75" cy="73.25" r="58"/>
-	<polygon fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="43,31 94.654,31 107,44.687 107,116 
-		43,116 	"/>
-	<rect x="39.667" y="70.5" fill="none" width="70" height="39.334"/>
-	<text transform="matrix(1 0 0 1 63.5298 79.6211)" font-family="'Menlo-Regular'" font-size="12">TXT</text>
-</g>
+<svg version="1.1" id="Layer_2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="150px" height="150px" viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="43,31 94.654,31 107,44.687 107,116 
+	43,116 "/>
+<rect x="39.667" y="70.5" fill="none" width="70" height="39.334"/>
+<text transform="matrix(1 0 0 1 63.5298 79.6211)" font-family="'Menlo-Regular'" font-size="12">TXT</text>
 </svg>
