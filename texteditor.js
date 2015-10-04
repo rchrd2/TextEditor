@@ -13,10 +13,9 @@ if (Meteor.isClient) {
       }
     },
     user: function () {
-      window.$U = Meteor.user();
       return Meteor.user()
     },
-    permissions: function () {
+    userjson: function () {
       if (Meteor.user()) {
         return JSON.stringify(Meteor.user());
         return Meteor.user().services.sandstorm.permissions.join();
@@ -29,6 +28,7 @@ if (Meteor.isClient) {
   Template.texteditor.events({
     /** Handle input */
     "input textarea": function(event, template) {
+      // TODO check actual permissions
       if (Meteor.user()) {
         console.log(Meteor.user().services.sandstorm.permissions);
         Meteor.call("updateText", event.target.value);
@@ -43,9 +43,10 @@ if (Meteor.isServer) {
 
 Meteor.methods({
   updateText: function (text) {
-    if ( ! Meteor.user()) {
-      throw new Meteor.Error("not-authorized");
-    }
+    /** TODO change to check permissions */
+    // if ( ! Meteor.user()) {
+    //   throw new Meteor.Error("not-authorized");
+    // }
     Data.upsert(DATA_ID, {$set: {
       value: text
     }});
