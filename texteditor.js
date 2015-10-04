@@ -17,7 +17,7 @@ if (Meteor.isClient) {
     },
     userjson: function () {
       if (Meteor.user()) {
-        return JSON.stringify(Meteor.user());
+        return JSON.stringify(Meteor.user()) + JSON.stringify(Meteor.user().services);
         return Meteor.user().services.sandstorm.permissions.join();
       } else {
         return "";
