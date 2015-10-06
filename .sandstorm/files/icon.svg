@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="150px" height="150px" viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">
-<polygon fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="43,31 94.654,31 107,44.687 107,116 
-	43,116 "/>
-<rect x="39.667" y="70.5" fill="none" width="70" height="39.334"/>
-<text transform="matrix(1 0 0 1 63.5298 79.6211)" font-family="'Menlo-Regular'" font-size="12">TXT</text>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="150px"
+	 height="150px" viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">
+<g id="Layer_3">
+	<rect fill="#F2F2F2" width="150" height="150"/>
+</g>
+<g id="Layer_2">
+	<polygon fill="#CCCCCC" points="46,34 97.654,34 110,47.687 110,119 46,119 	"/>
+	<polygon fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="43,31 94.654,31 107,44.687 107,116 
+		43,116 	"/>
+	<g>
+		<path d="M63.449,70.873h6.674v0.996h-2.736v7.752h-1.189v-7.752h-2.748V70.873z"/>
+		<path d="M71.507,70.873h1.271l1.922,3.299l1.958-3.299h1.271l-2.62,4.113l2.807,4.635h-1.271l-2.145-3.768l-2.314,3.768h-1.277
+			l2.93-4.635L71.507,70.873z"/>
+		<path d="M79.21,70.873h6.674v0.996h-2.736v7.752h-1.189v-7.752H79.21V70.873z"/>
+	</g>
+</g>
 </svg>

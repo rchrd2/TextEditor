@@ -12,11 +12,12 @@ const DATA_ID = 'default_id';
  * Check if user has sandstorm permissions to edit the document
  * @param {String} userId
  */
-var hasPermission = function(userId) {
+var hasPermission = function (userId) {
   var result;
   try {
     var user = Meteor.users.findOne(userId);
-    result = user.services.sandstorm.permissions.indexOf('modify') != -1;
+    var p = user.services.sandstorm.permissions;
+    result = p.indexOf('modify') !== -1 || p.indexOf('owner') !== -1;
   } catch (err) {
     result = false;
   }
@@ -24,15 +25,9 @@ var hasPermission = function(userId) {
 }
 
 if (Meteor.isClient) {
-
   Template.texteditor.helpers({
-    value: function () {
-      var doc = Data.findOne(DATA_ID);
-      if (doc) {
-        return doc.value;
-      } else {
-        return "";
-      }
+    doc: function () {
+      return Data.findOne(DATA_ID);
     },
     disabled: function() {
       return ! hasPermission(Meteor.userId());
@@ -51,27 +46,25 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-  Meteor.startup(function () {});
+  Meteor.startup(function () {
+    var doc = Data.findOne(DATA_ID);
+    if ( ! doc) {
+      var id = Data.insert({_id: DATA_ID, value: ""});
+    }
+  });
 
-  // Publish the user and fields with special Sandstorm permissions
+  // Include the extra fields, or else they won't be on the client.
   Meteor.publish("yourself", function () {
     if ( ! this.userId) {
       return [];
     } else {
-      // Include the extra fields, or else they won't be on the client.
       return Meteor.users.find(this.userId, {fields: {"services.sandstorm": 1}});
     }
   });
 
   // Publish the document
   Meteor.publish("thedocument", function () {
-    // Get or Create
-    var doc = Data.find(DATA_ID);
-    if ( ! doc) {
-      var _id = Data.insert({_id: DATA_ID, value: ""});
-      doc = Data.find(_id);
-    }
-    return doc;
+    return Data.find(DATA_ID);
   });
 
   // Restrict direct client updating of models
@@ -84,7 +77,7 @@ if (Meteor.isServer) {
     insert: function (userId, doc) {
       return hasPermission(userId);
     },
-    update: function (userId, doc, fields, modifier) {
+    update: function (userId, doc) {
       return hasPermission(userId);
     },
     remove: function(userId, doc) { return false; }
