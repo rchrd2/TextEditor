@@ -8,7 +8,5 @@
 </body>
 
 <template name="texteditor">
-  <div>user: {{user.profile.name}}</div>
-  <div>json: {{userjson}}</div>
-  <textarea autofocus="true">{{value}}</textarea>
+  <textarea autofocus="true" disabled="{{disabled}}">{{value}}</textarea>
 </template>

@@ -94,11 +94,11 @@ const pkgdef :Spk.PackageDefinition = (
       permissions = [(name = "modify", title = (defaultText = "modify"),
                       description = (defaultText = "allows modifying the document"))],
       roles = [(title = (defaultText = "editor"),
-                permissions = [true, false],
+                permissions = [true],
                 verbPhrase = (defaultText = "can edit"),
                 default = true),
                (title = (defaultText = "viewer"),
-                permissions = [false, true],
+                permissions = [false],
                 verbPhrase = (defaultText = "can view"))]
     )
   )

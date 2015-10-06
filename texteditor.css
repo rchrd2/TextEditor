@@ -2,7 +2,7 @@
 body, html {
   overflow: hidden;
 }
-/*textarea, body, html {
+textarea, body, html {
   height: 100%;
   width: 100%;
   padding: 0;
@@ -10,9 +10,9 @@ body, html {
   box-sizing: border-box;
   border: none;
   font-size: 16px;
-}*/
+}
 
-/*textarea {
+textarea {
   padding: 1rem .5rem .25rem .75rem;
   font-family: Menlo,Monaco,consolas,monospace;
   font-weight: 400;
@@ -23,4 +23,4 @@ body, html {
   height: 100%;
   resize: none;
   -webkit-overflow-scrolling: touch
-}*/
+}
