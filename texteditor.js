@@ -6,17 +6,15 @@ var Data = new Mongo.Collection("Data");
 /*
  * Important, do not change DATA_ID or else all apps will lose their data :-X
  */
-var DATA_ID = 'default_id';
+const DATA_ID = 'default_id';
 
 /**
- * Find a user who has the permission properties
+ * Check if user has sandstorm permissions to edit the document
  * @param {String} userId
  */
 var hasPermission = function(userId) {
-  //return true; // TODO
   var result;
   try {
-    // Try to access deeply nested property
     var user = Meteor.users.findOne(userId);
     result = user.services.sandstorm.permissions.indexOf('modify') != -1;
   } catch (err) {
@@ -24,7 +22,6 @@ var hasPermission = function(userId) {
   }
   return result;
 }
-
 
 if (Meteor.isClient) {
 
@@ -44,10 +41,7 @@ if (Meteor.isClient) {
 
   Template.texteditor.events({
     "input textarea": function(event, template) {
-      if ( ! hasPermission(Meteor.userId())) {
-        throw new Meteor.Error("not-authorized");
-      }
-      Meteor.call("updateText", event.target.value);
+      Data.update(DATA_ID, {$set: { value: event.target.value }});
     },
   });
 
@@ -59,7 +53,7 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
   Meteor.startup(function () {});
 
-  // Publish the user with special Sandstorm permissions
+  // Publish the user and fields with special Sandstorm permissions
   Meteor.publish("yourself", function () {
     if ( ! this.userId) {
       return [];
@@ -71,18 +65,28 @@ if (Meteor.isServer) {
 
   // Publish the document
   Meteor.publish("thedocument", function () {
-    return Data.find(DATA_ID);
+    // Get or Create
+    var doc = Data.find(DATA_ID);
+    if ( ! doc) {
+      var _id = Data.insert({_id: DATA_ID, value: ""});
+      doc = Data.find(_id);
+    }
+    return doc;
+  });
+
+  // Restrict direct client updating of models
+  Meteor.users.allow({
+    insert: function (userId, doc) { return false; },
+    update: function (userId, doc) { return false; },
+    remove: function (userId, doc) { return false; }
+  });
+  Data.allow({
+    insert: function (userId, doc) {
+      return hasPermission(userId);
+    },
+    update: function (userId, doc, fields, modifier) {
+      return hasPermission(userId);
+    },
+    remove: function(userId, doc) { return false; }
   });
 }
-
-/**
- * @note Defines functions that can be invoked over the network by clients.
- */
-Meteor.methods({
-  updateText: function (text) {
-    if ( ! hasPermission(Meteor.userId())) {
-      throw new Meteor.Error("not-authorized");
-    }
-    Data.upsert(DATA_ID, {$set: { value: text }});
-  }
-});
