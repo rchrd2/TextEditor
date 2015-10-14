@@ -5,10 +5,14 @@ var Data = new Mongo.Collection("Data");
 const DATA_ID = 'default_id';
 
 if (Meteor.isClient) {
+  Meteor.startup(function () {
+    // Asynchronously check permission on startup
+    Meteor.call('hasPermission', (value) => Session.set('hasPermission', value));
+  });
 
   Template.texteditor.helpers({
     doc: () => Data.findOne(DATA_ID),
-    disabled: () => ! hasPermission()
+    disabled: () => Session.get('hasPermission') === false,
   });
 
   Template.texteditor.events({
@@ -22,57 +26,52 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-  /* Clean headers, because undefined values break the headers lib */
-  WebApp.rawConnectHandlers.use(function(req, res, next) {
-    for (var key in req.headers) {
-      if (req.headers[key] === undefined) {
-        delete req.headers[key];
+  /* Use a closure here to get a scope accessible only in server */
+  // NOTE this doesn't work either. _hasPermission is shared accross all connected clients
+  (function() {
+    var _hasPermission = false;
+
+    WebApp.rawConnectHandlers.use(function(req, res, next) {
+      //console.log('WebApp.rawConnectHandlers')
+      //console.log(req);
+      /* Clean headers, because undefined values break the headers lib */
+      for (var key in req.headers) {
+        if (req.headers[key] === undefined) {
+          delete req.headers[key];
+        }
+        var p = req.headers['x-sandstorm-permissions'] || "";
+        _hasPermission = p.indexOf('modify') !== -1 || p.indexOf('owner') !== -1;
+        //Meteor.call('hasPermission', _hasPermission);
       }
-    }
-    return next();
-  })
+      return next();
+    })
 
-  Meteor.startup(function () {
-    var doc = Data.findOne(DATA_ID);
-    if ( ! doc) {
-      var id = Data.insert({_id: DATA_ID, value: ""});
-    }
-  });
+    Meteor.startup(function () {
+      console.log('Meteor.startup server');
+      console.log(arguments);
+      var doc = Data.findOne(DATA_ID);
+      if ( ! doc) {
+        var id = Data.insert({_id: DATA_ID, value: ""});
+      }
+    });
 
-  // Publish the document
-  Meteor.publish("thedocument", () => Data.find(DATA_ID));
+    // Publish the document
+    Meteor.publish("thedocument", () => Data.find(DATA_ID));
 
-  /* Permissions */
-  Meteor.users.allow({
-    insert: (userId, doc) => false,
-    update: (userId, doc) => false,
-    remove: (userId, doc) => false,
-  });
-  Data.allow({
-    insert: (userId, doc) => hasPermission(),
-    update: (userId, doc) => hasPermission(),
-    remove: (userId, doc) => false,
-  });
-}
+    /* Permissions */
+    Meteor.users.allow({
+      insert: (userId, doc) => false,
+      update: (userId, doc) => false,
+      remove: (userId, doc) => false,
+    });
+    Data.allow({
+      insert: (userId, doc) => Meteor.call('hasPermission'),
+      update: (userId, doc) => Meteor.call('hasPermission'),
+      remove: (userId, doc) => false,
+    });
 
-Meteor.methods({
-  hasPermission: function () {
-    console.log('isserver');
-    console.log(headers);
-    var self = this;
-    var h = headers.get(self)
-    console.log(h);
-    var p = h['x-sandstorm-permissions'] || "";
-    var result = p.indexOf('modify') !== -1 || p.indexOf('owner') !== -1;
-    return result;
-  },
-
-});
-
-/**
- * Check if user has sandstorm permissions to edit the document
- * @param {String} userId
- */
-var hasPermission = function () {
-  return Meteor.call('hasPermission');
+    Meteor.methods({
+      hasPermission: () => _hasPermission,
+    });
+  })();
 }
