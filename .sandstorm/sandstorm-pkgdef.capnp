@@ -21,7 +21,7 @@ const pkgdef :Spk.PackageDefinition = (
 
     appVersion = 0,  # Increment this for every release.
 
-    appMarketingVersion = (defaultText = "0.0.1"),
+    appMarketingVersion = (defaultText = "0.0.2"),
     # Human-readable representation of appVersion. Should match the way you
     # identify versions of your app in documentation and marketing.
 
@@ -93,13 +93,13 @@ const pkgdef :Spk.PackageDefinition = (
     viewInfo = (
       permissions = [(name = "modify", title = (defaultText = "modify"),
                       description = (defaultText = "allows modifying the document"))],
-      roles = [(title = (defaultText = "editor"),
+      roles = [(title = (defaultText = "viewer"),
+                permissions = [false],
+                verbPhrase = (defaultText = "can view")),
+               (title = (defaultText = "editor"),
                 permissions = [true],
                 verbPhrase = (defaultText = "can edit"),
-                default = true),
-               (title = (defaultText = "viewer"),
-                permissions = [false],
-                verbPhrase = (defaultText = "can view"))]
+                default = true)]
     )
   )
 );

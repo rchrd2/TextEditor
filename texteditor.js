@@ -1,37 +1,14 @@
-/*
- * Define a collection, but will only use one document.
- */
+/* Define a collection, but will only use one document. */
 var Data = new Mongo.Collection("Data");
 
-/*
- * Important, do not change DATA_ID or else all apps will lose their data :-X
- */
+/* Important, do not change DATA_ID or else all apps will lose their data */
 const DATA_ID = 'default_id';
 
-/**
- * Check if user has sandstorm permissions to edit the document
- * @param {String} userId
- */
-var hasPermission = function (userId) {
-  var result;
-  try {
-    var user = Meteor.users.findOne(userId);
-    var p = user.services.sandstorm.permissions;
-    result = p.indexOf('modify') !== -1 || p.indexOf('owner') !== -1;
-  } catch (err) {
-    result = false;
-  }
-  return result;
-}
-
 if (Meteor.isClient) {
+
   Template.texteditor.helpers({
-    doc: function () {
-      return Data.findOne(DATA_ID);
-    },
-    disabled: function() {
-      return ! hasPermission(Meteor.userId());
-    }
+    doc: () => Data.findOne(DATA_ID),
+    disabled: () => ! hasPermission()
   });
 
   Template.texteditor.events({
@@ -41,11 +18,20 @@ if (Meteor.isClient) {
   });
 
   // Register these exported collections
-  Meteor.subscribe("yourself");
   Meteor.subscribe("thedocument");
 }
 
 if (Meteor.isServer) {
+  /* Clean headers, because undefined values break the headers lib */
+  WebApp.rawConnectHandlers.use(function(req, res, next) {
+    for (var key in req.headers) {
+      if (req.headers[key] === undefined) {
+        delete req.headers[key];
+      }
+    }
+    return next();
+  })
+
   Meteor.startup(function () {
     var doc = Data.findOne(DATA_ID);
     if ( ! doc) {
@@ -53,33 +39,40 @@ if (Meteor.isServer) {
     }
   });
 
-  // Include the extra fields, or else they won't be on the client.
-  Meteor.publish("yourself", function () {
-    if ( ! this.userId) {
-      return [];
-    } else {
-      return Meteor.users.find(this.userId, {fields: {"services.sandstorm": 1}});
-    }
-  });
-
   // Publish the document
-  Meteor.publish("thedocument", function () {
-    return Data.find(DATA_ID);
-  });
+  Meteor.publish("thedocument", () => Data.find(DATA_ID));
 
-  // Restrict direct client updating of models
+  /* Permissions */
   Meteor.users.allow({
-    insert: function (userId, doc) { return false; },
-    update: function (userId, doc) { return false; },
-    remove: function (userId, doc) { return false; }
+    insert: (userId, doc) => false,
+    update: (userId, doc) => false,
+    remove: (userId, doc) => false,
   });
   Data.allow({
-    insert: function (userId, doc) {
-      return hasPermission(userId);
-    },
-    update: function (userId, doc) {
-      return hasPermission(userId);
-    },
-    remove: function(userId, doc) { return false; }
+    insert: (userId, doc) => hasPermission(),
+    update: (userId, doc) => hasPermission(),
+    remove: (userId, doc) => false,
   });
+}
+
+Meteor.methods({
+  hasPermission: function () {
+    console.log('isserver');
+    console.log(headers);
+    var self = this;
+    var h = headers.get(self)
+    console.log(h);
+    var p = h['x-sandstorm-permissions'] || "";
+    var result = p.indexOf('modify') !== -1 || p.indexOf('owner') !== -1;
+    return result;
+  },
+
+});
+
+/**
+ * Check if user has sandstorm permissions to edit the document
+ * @param {String} userId
+ */
+var hasPermission = function () {
+  return Meteor.call('hasPermission');
 }
