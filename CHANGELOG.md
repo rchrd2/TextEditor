@@ -1,5 +1,5 @@
 # 0.0.2
- * Add Sandstorm sharing functionality. Can share edit or read-only links.
+ * Add Sandstorm sharing functionality. Share for viewers or editors.
  * Add security to app to check enforce permissions.
  * Update application icon.
 

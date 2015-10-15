@@ -3,18 +3,18 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="150px"
 	 height="150px" viewBox="0 0 150 150" enable-background="new 0 0 150 150" xml:space="preserve">
-<g id="Layer_3">
-	<rect fill="#F2F2F2" width="150" height="150"/>
+<g id="Layer_3" display="none">
+	<rect display="inline" fill="#F2F2F2" width="150" height="150"/>
 </g>
 <g id="Layer_2">
-	<polygon fill="#CCCCCC" points="46,34 97.654,34 110,47.687 110,119 46,119 	"/>
-	<polygon fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="43,31 94.654,31 107,44.687 107,116 
-		43,116 	"/>
+	<polygon fill="#CCCCCC" points="42,28 100.539,28 115,43.962 115,125 42,125 	"/>
+	<polygon fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="38,25 97.13,25 111,40.553 111,122 
+		38,122 	"/>
 	<g>
-		<path d="M63.449,70.873h6.674v0.996h-2.736v7.752h-1.189v-7.752h-2.748V70.873z"/>
-		<path d="M71.507,70.873h1.271l1.922,3.299l1.958-3.299h1.271l-2.62,4.113l2.807,4.635h-1.271l-2.145-3.768l-2.314,3.768h-1.277
-			l2.93-4.635L71.507,70.873z"/>
-		<path d="M79.21,70.873h6.674v0.996h-2.736v7.752h-1.189v-7.752H79.21V70.873z"/>
+		<path d="M61.669,70.31h7.584v1.132h-3.109v8.81h-1.352v-8.81h-3.123V70.31z"/>
+		<path d="M70.827,70.31h1.445l2.184,3.749l2.225-3.749h1.445l-2.977,4.674l3.19,5.267h-1.445l-2.438-4.282l-2.63,4.282h-1.452
+			l3.33-5.267L70.827,70.31z"/>
+		<path d="M79.579,70.31h7.584v1.132h-3.109v8.81h-1.352v-8.81h-3.123V70.31z"/>
 	</g>
 </g>
 </svg>

@@ -66,8 +66,7 @@ const pkgdef :Spk.PackageDefinition = (
 
       screenshots = [
         (width = 797, height = 627, png = embed "files/screenshot-01.png"),
-        (width = 797, height = 627, png = embed "files/screenshot-02.png"),
-        (width = 797, height = 627, png = embed "files/screenshot-03.png")
+        (width = 797, height = 627, png = embed "files/screenshot-02.png")
       ],
 
       changeLog = (defaultText = embed "../CHANGELOG.md"),
@@ -95,11 +94,11 @@ const pkgdef :Spk.PackageDefinition = (
                       description = (defaultText = "allows modifying the document"))],
       roles = [(title = (defaultText = "viewer"),
                 permissions = [false],
-                verbPhrase = (defaultText = "can view")),
+                verbPhrase = (defaultText = "can view"),
+                default = true),
                (title = (defaultText = "editor"),
                 permissions = [true],
-                verbPhrase = (defaultText = "can edit"),
-                default = true)]
+                verbPhrase = (defaultText = "can edit"))]
     )
   )
 );
