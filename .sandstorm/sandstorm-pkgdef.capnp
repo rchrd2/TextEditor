@@ -21,7 +21,7 @@ const pkgdef :Spk.PackageDefinition = (
 
     appVersion = 0,  # Increment this for every release.
 
-    appMarketingVersion = (defaultText = "0.0.1"),
+    appMarketingVersion = (defaultText = "0.0.2"),
     # Human-readable representation of appVersion. Should match the way you
     # identify versions of your app in documentation and marketing.
 
@@ -43,10 +43,10 @@ const pkgdef :Spk.PackageDefinition = (
 
     metadata = (
       icons = (
-        appGrid = (svg = embed "../app/icon.svg"),
-        grain = (svg = embed "../app/icon.svg"),
-        market = (svg = embed "../app/icon.svg"),
-        marketBig = (svg = embed "../app/icon.svg"),
+        appGrid = (svg = embed "files/icon.svg"),
+        grain = (svg = embed "files/icon.svg"),
+        market = (svg = embed "files/icon.svg"),
+        marketBig = (svg = embed "files/icon.svg"),
       ),
 
       website = "https://github.com/rchrd2/texteditor",
@@ -56,18 +56,17 @@ const pkgdef :Spk.PackageDefinition = (
 
       author = (
         contactEmail = "me@rchrd.net",
-        pgpSignature = embed "../app/pgp-signature",
+        pgpSignature = embed "files/pgp-signature",
         upstreamAuthor = "Richard Caceres",
       ),
-      pgpKeyring = embed "../app/pgp-keyring",
+      pgpKeyring = embed "files/pgp-keyring",
 
-      description = (defaultText = embed "../app/description.md"),
+      description = (defaultText = embed "files/description.md"),
       shortDescription = (defaultText = "Plain text editor"),
 
       screenshots = [
-        (width = 797, height = 627, png = embed "../app/screenshot-01.png"),
-        (width = 797, height = 627, png = embed "../app/screenshot-02.png"),
-        (width = 797, height = 627, png = embed "../app/screenshot-03.png")
+        (width = 797, height = 627, png = embed "files/screenshot-01.png"),
+        (width = 797, height = 627, png = embed "files/screenshot-02.png")
       ],
 
       changeLog = (defaultText = embed "../CHANGELOG.md"),
@@ -83,11 +82,25 @@ const pkgdef :Spk.PackageDefinition = (
     ]
   ),
 
-  alwaysInclude = [ "." ]
+  alwaysInclude = [ "." ],
   # This says that we always want to include all files from the source map.
   # (An alternative is to automatically detect dependencies by watching what
   # the app opens while running in dev mode. To see what that looks like,
   # run `spk init` without the -A option.)
+
+  bridgeConfig = (
+    viewInfo = (
+      permissions = [(name = "modify", title = (defaultText = "modify"),
+                      description = (defaultText = "allows modifying the document"))],
+      roles = [(title = (defaultText = "viewer"),
+                permissions = [false],
+                verbPhrase = (defaultText = "can view"),
+                default = true),
+               (title = (defaultText = "editor"),
+                permissions = [true],
+                verbPhrase = (defaultText = "can edit"))]
+    )
+  )
 );
 
 const myCommand :Spk.Manifest.Command = (
