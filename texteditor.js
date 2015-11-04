@@ -12,17 +12,82 @@ function initClient () {
     Meteor.call('hasPermission', (error, result) => {
       _hasPermissionCache = result;
     });
+
+    Session.set({
+      "isCssOpened": false,
+      "fontSize": "16px",
+      "fontFamily": "monospace",
+    });
   });
+
+  Template.texteditor.rendered = function () {
+    //  document.createElement('textarea');
+    var ta = document.getElementById('textarea');
+    Session.set({
+      "fontSize": ta.style.fontSize,
+      "fontFamily": ta.style.fontFamily,
+    })
+  };
 
   Template.texteditor.helpers({
     doc: () => Data.findOne(DATA_ID),
     disabled: () => _hasPermissionCache !== true,
+    fontSize: () => Session.get("fontSize"),
+    fontFamily: () => Session.get("fontFamily"),
+    isCssOpened: () => Session.get("isCssOpened"),
+    isConnected: () => Meteor.status().connected,
   });
 
   Template.texteditor.events({
-    "input textarea": function (event, template) {
+    "input #textarea": function (event, template) {
       Data.update(DATA_ID, {$set: { value: event.target.value }});
     },
+
+    "input #css-textarea": function (event, template) {
+      Data.update(DATA_ID, {$set: { css: event.target.value }});
+    },
+
+    "click #collapse-button": function (event, template) {
+      Session.set("isCssOpened", ! Session.get("isCssOpened"));
+      event.preventDefault();
+      return false;
+    },
+
+    "click #toggle-light-button": function (event, template) {
+      var ta = document.getElementById('textarea');
+      var color = ta.style.color || "#000000";
+      var bgColor = ta.style.backgroundColor || "#FFFFFF";
+      ta.style.backgroundColor = color;
+      ta.style.color = bgColor;
+      Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
+      event.preventDefault();
+      return false;
+    },
+
+    "change select[name=font-family]": function (e, template) {
+      var ta = document.getElementById('textarea');
+      var value = e.currentTarget.options[e.currentTarget.selectedIndex].value;
+      ta.style.fontFamily = value;
+      Session.set({
+        "fontSize": ta.style.fontSize,
+        "fontFamily": ta.style.fontFamily,
+      });
+      Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
+      event.preventDefault();
+      return false;
+    },
+
+    "change select[name=font-size]": function (e, template) {
+      var ta = document.getElementById('textarea');
+      ta.style.fontSize = e.currentTarget.options[e.currentTarget.selectedIndex].value;
+      Session.set({
+        "fontSize": ta.style.fontSize,
+        "fontFamily": ta.style.fontFamily,
+      });
+      Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
+      event.preventDefault();
+      return false;
+    }
   });
 
   // Register these exported collections
@@ -43,7 +108,15 @@ function initServer () {
   Meteor.startup(function () {
     var doc = Data.findOne(DATA_ID);
     if ( ! doc) {
-      var id = Data.insert({_id: DATA_ID, value: ""});
+      var id = Data.insert({
+        _id: DATA_ID,
+        value: "",
+        css: `font-family: Menlo, monospace;
+font-size: 16px;
+background-color: #FFFFFF;
+color: #000000;
+`,
+      });
     }
   });
 
@@ -69,6 +142,10 @@ function initServer () {
     },
   });
 }
+
+UI.registerHelper('selected', function(key, value){
+  return key == value? {selected:'selected'}: '';
+});
 
 
 if (Meteor.isClient) {

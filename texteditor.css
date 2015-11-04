@@ -1,26 +1,88 @@
-/* CSS declarations go here */
+* {
+  box-sizing: content-box;
+}
+
 body, html {
   overflow: hidden;
 }
-textarea, body, html {
-  height: 100%;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  border: none;
+
+body {
+  margin:0;
+  padding:0;
+  background-color:#eee;
+}
+body, textarea {
+  font-family: sans-serif;
   font-size: 16px;
+  line-height: 20px;
+}
+#drawer-button {
+  position:fixed;
+  top:0;
+  right: 0;
+}
+#drawer {
+  font-family:sans-serif;
+  background-color:#fff;
+  color: #ccc;
+  /*width:50px;*/
+  padding:.5rem;
+}
+#drawer form > div {
+  margin-bottom: 1rem;
+}
+#drawer .drawer-title {
+  color:#000;
 }
 
-textarea {
-  padding: 1rem .5rem .25rem .75rem;
-  font-family: Menlo,Monaco,consolas,monospace;
-  font-weight: 400;
-  line-height: 1.45rem;
-  background-color: #fff;
-  color: #000;
-  outline: medium none;
-  height: 100%;
+#textarea {
+  width:100%;
+  /*height:100%;*/
+  border:0px;
+  margin:0;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem .75rem .25rem .75rem;
+  outline:0;
   resize: none;
-  -webkit-overflow-scrolling: touch
+  font-weight: 400;
+  line-height: 1.45em;
+  transition: background-color 1s ease-out, color 1s ease-out;
+}
+
+
+.footer {
+  position: absolute; bottom: 0; width: 100%;
+  height: 1.5rem;
+  background-color:rgba(128,128,128,1);
+  color: rgba(255,255,255,1);
+  font-size:11px;
+  letter-spacing: .025em;
+  /*padding-left:4px;*/
+  opacity: 0.5;
+  transition: opacity .33s ease-out;
+  /*box-shadow: -5px -5px -5px rgba(0,0,0,.25);*/
+}
+.footer:hover {
+  opacity: 0.75;
+}
+.footer > div {
+  padding:0 0.75rem;
+  position: relative;
+  top: 2px;
+}
+.footer .status {
+  cursor:default;
+  /*border-right:1px solid #bbb;*/
+  /*padding:0 1rem 0 .75rem;*/
+  /*margin-right: .5em;*/
+}
+.footer .settings {
+  /*border-left:1px solid #bbb;*/
+  cursor: pointer;
+}
+
+#css-textarea {
+  font-size: 12px;
+  line-height: 14px;
+  width: 100%;
 }
