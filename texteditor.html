@@ -1,19 +1,19 @@
 <head>
   <title>TextEditor</title>
   <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, minimum-scale=1">
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
   <script src="/bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
 
   <!-- polymer components -->
-	<link rel="import" href="/bower_components/iron-collapse/iron-collapse.html">
+  <link rel="import" href="/bower_components/iron-collapse/iron-collapse.html">
   <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
-	<link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
-	<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+  <link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
+  <link rel="import" href="/bower_components/paper-styles/paper-styles.html">
 
   <!-- custom components -->
-	<link rel="import" href="/components/x-led.html">
+  <link rel="import" href="/components/x-led.html">
 
   <style is="custom-style">
   paper-drawer-panel {
@@ -25,7 +25,7 @@
   #scrim {
     background-color: transparent;
   }
-	</style>
+  </style>
 
 
 </head>
@@ -38,47 +38,48 @@
 
 <template name="texteditor">
   <div>
-  	<paper-drawer-panel id="paperDrawerPanel" force-narrow right-drawer>
-  		<div id="drawer" drawer class="">
-  			<form class="">
-  				<div class="drawer-title"><b>Document Settings</b></div>
-  				<div>
-  					Font Family
-  					<select name="font-family">
-  						<option {{selected fontFamily "Menlo, monospace"}} value="Menlo, monospace">monospace</option>
-  						<option {{selected fontFamily "sans-serif"}} value="sans-serif">sans-serif</option>
-  						<option {{selected fontFamily "serif"}} value="serif">serif</option>
-  					</select>
-  				</div>
-  				<div>
-  					Font Size
-  					<select name="font-size">
-  						<option {{selected fontSize "22px"}} value="22px">22</option>
-  						<option {{selected fontSize "16px"}} value="16px">16</option>
-  						<option {{selected fontSize "12px"}} value="12px">12</option>
-  					</select>
-  				</div>
-  				<div>
-  					Light / Dark <button id="toggle-light-button">Toggle</button>
-  				</div>
+    <paper-drawer-panel id="paperDrawerPanel" force-narrow right-drawer>
+      <div id="drawer" drawer class="">
+        <form class="">
+          <div class="drawer-title"><b>Document Settings</b></div>
+          <div>
+            Font Family
+            <select name="font-family">
+              <option {{selected fontFamily "Menlo, monospace"}} value="Menlo, monospace">monospace</option>
+              <option {{selected fontFamily "sans-serif"}} value="sans-serif">sans-serif</option>
+              <option {{selected fontFamily "serif"}} value="serif">serif</option>
+            </select>
+          </div>
+          <div>
+            Font Size
+            <select name="font-size">
+              <option {{selected fontSize "22px"}} value="22px">22</option>
+              <option {{selected fontSize "16px"}} value="16px">16</option>
+              <option {{selected fontSize "12px"}} value="12px">12</option>
+            </select>
+          </div>
+          <div>
+            Light / Dark <button id="toggle-light-button">Toggle</button>
+          </div>
 
-  				<div>
-  					<br/>
-  					<button id="collapse-button" class="toggleCss">Toggle Raw CSS</button>
-  					<iron-collapse id="collapse" opened="{{isCssOpened}}">
-  							<textarea id="css-textarea" rows="8">{{doc.css}}</textarea>
-  					</iron-collapse>
-  				</div>
-  			</form>
-  		</div>
+          <div>
+            <br/>
+            <button id="collapse-button" class="toggleCss">Toggle Raw CSS</button>
+            <br/>
+            <br/>
+            <iron-collapse id="collapse" opened="{{isCssOpened}}">
+                <textarea id="css-textarea" rows="8">{{doc.css}}</textarea>
+            </iron-collapse>
+          </div>
+        </form>
+      </div>
 
-  		<div main class="flex layout vertical">
+      <div main class="flex layout vertical">
         <textarea
           id="textarea"
           autofocus="true"
           disabled="{{disabled}}"
           class="flex"
-          style="{{doc.css}}"
           >{{doc.value}}</textarea>
 
         <div class="footer layout horizontal">
@@ -89,9 +90,7 @@
               <x-led color="#292929">Not connected</x-led>
             {{/if}}
           </div>
-          <div class="users flex">
-            {{!-- <x-led color="#009dfd">You</x-led> <x-led color="#ad92fd">Gleb</x-led> --}}
-          </div>
+          <div class="users flex"></div>
           <div class="settings" paper-drawer-toggle>Settings</div>
         </div>
       </div>
