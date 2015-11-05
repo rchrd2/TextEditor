@@ -54,7 +54,6 @@ function initClient () {
       var ta = document.getElementById('textarea');
       ta.style.cssText = e.target.value;
       Data.update(DATA_ID, {$set: { css: e.target.value }});
-      updateSessionFromStyleChange(ta);
     },
 
     /* Swap color and background-color */
@@ -66,7 +65,6 @@ function initClient () {
       ta.style.backgroundColor = color;
       ta.style.color = bgColor;
       Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
-      updateSessionFromStyleChange(ta)
     },
 
     /* Update font-family from selection */
@@ -76,7 +74,6 @@ function initClient () {
       var value = e.currentTarget.options[e.currentTarget.selectedIndex].value;
       ta.style.fontFamily = value;
       Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
-      updateSessionFromStyleChange(ta);
     },
 
     /* Update font-size from selection */
@@ -85,7 +82,6 @@ function initClient () {
       var ta = document.getElementById("textarea");
       ta.style.fontSize = e.currentTarget.options[e.currentTarget.selectedIndex].value;
       Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
-      updateSessionFromStyleChange(ta);
     }
   });
 
@@ -106,6 +102,18 @@ function initClient () {
     el.style.cssText = doc.css;
     updateSessionFromStyleChange(el);
   });
+
+  /* Listen to changes to the document */
+  Data.find(DATA_ID).observeChanges({
+    changed: function(_id, changes) {
+      if ("css" in changes) {
+        var el = document.getElementById("textarea");
+        el.style.cssText = changes.css;
+        updateSessionFromStyleChange(el);
+      }
+    },
+  });
+
 }
 
 function initServer () {
