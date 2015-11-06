@@ -1,0 +1,186 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<!-- polymer components -->
+<link rel="import" href="/bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+
+<link rel="import" href="./x-led.html">
+
+<dom-module id="x-main">
+
+  <style>
+    :host {}
+  </style>
+
+  <template>
+    <div>
+      <paper-drawer-panel disable-swipe="true" disable-edge-swipe="true"
+                          force-narrow right-drawer>
+        <div drawer class="drawer">
+          <form>
+            <div class="drawer-title"><b>Document Settings</b></div>
+
+            <div>
+              Font Family
+              <select name="font-family" on-change="handleFontFamily" value=[[cssVals.fontFamily]]>
+                <option value="Menlo, monospace">monospace</option>
+                <option value="sans-serif">sans-serif</option>
+                <option value="serif">serif</option>
+              </select>
+            </div>
+
+            <div>
+              Font Size
+              <select name="font-size" on-change="handleFontSize" value=[[cssVals.fontSize]]>
+                <option value="22px">22</option>
+                <option value="16px">16</option>
+                <option value="14px">14</option>
+                <option value="12px">12</option>
+                <option value="10px">10</option>
+              </select>
+            </div>
+
+            <div>
+              Theme
+              <select name="theme" on-change="handleTheme">
+                <option value="">&nbsp;</option>
+                <option value="font-family: Menlo, monospace; letter-spacing: 0.1em; font-weight: bold; margin: 0px auto; padding: 4rem 20%;">Kerouac</option>
+                <option value="font-family: Menlo, monospace; font-size: 12px; background-color: rgb(40, 44, 52); color: rgb(171, 178, 191);">Atom</option>
+              </select>
+            </div>
+
+            <div>
+              Light / Dark <button on-click="toggleLight">Toggle</button>
+            </div>
+
+            <div>
+              <br/>
+              <button on-click="toggleCss">Toggle Raw CSS</button>
+              <br/>
+              <br/>
+              <iron-collapse id="CssCollapse">
+                <textarea id="CssTextarea" rows="8" on-input="cssInput"></textarea>
+              </iron-collapse>
+            </div>
+          </form>
+        </div>
+        <div main class="flex layout vertical">
+          <textarea id="Textarea" class="flex" autofocus="true"
+                    disabled="[[!hasPermission]]" on-input="textareaInput"></textarea>
+
+          <div class="footer layout horizontal">
+            <div class="status">
+              <template is="dom-if" if="[[connectedStatus]]">
+                <x-led color="#63f5ac">Connected</x-led>
+              </template>
+              <template is="dom-if" if="[[!connectedStatus]]">
+                <x-led color="#292929">Not connected</x-led>
+              </template>
+            </div>
+            <div class="users flex"></div>
+            <div class="settings" paper-drawer-toggle>Settings</div>
+          </div>
+        </div>
+
+      </paper-drawer-panel>
+    </div>
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'x-main',
+
+    ready: function () {
+      /* Check for permission */
+      this.hasPermission = false;
+      Meteor.call("hasPermission", function (error, result) {
+        this.hasPermission = result;
+      }.bind(this));
+
+      /* Load the document */
+      var doc = Data.findOne(DATA_ID);
+      this.updateFromDoc(doc);
+
+      /*
+       * Tracker.autorun is magic in that it somehow knows what the reactive
+       * values are within.
+       * Info: https://github.com/meteor/meteor/wiki/Tracker-Manual
+       */
+      Tracker.autorun(function (comp) {
+        var doc = Data.findOne(DATA_ID);
+        this.updateFromDoc(doc);
+      }.bind(this));
+      Tracker.autorun(function (comp) {
+        this.connectedStatus = Meteor.status().connected;
+      }.bind(this));
+
+    },
+
+    updateFromDoc: function (doc) {
+      if (this.$.Textarea.value !== doc.value) {
+        this.$.Textarea.value = doc.value;
+      }
+      if (this.$.CssTextarea.value !== doc.css) {
+        this.$.CssTextarea.value = doc.css;
+        this.$.Textarea.style.cssText = doc.css;
+        document.body.style.backgroundColor = this.$.Textarea.style.backgroundColor;
+      }
+      this.cssVals = {
+        fontFamily: this.$.Textarea.style.fontFamily,
+        fontSize: this.$.Textarea.style.fontSize
+      };
+    },
+
+    /* Textarea input */
+    textareaInput: function (e) {
+      Data.update(DATA_ID, {$set: { value: e.target.value }});
+    },
+
+    /* Toggle Css */
+    toggleCss: function (e) {
+      e.preventDefault();
+      this.$.CssCollapse.toggle();
+    },
+
+    /* Css input */
+    cssInput: function (e) {
+      this.$.Textarea.style.cssText = e.target.value;
+      Data.update(DATA_ID, {$set: { css: e.target.value }});
+    },
+
+    handleFontFamily: function (e) {
+      this.$.Textarea.style.fontFamily = e.target.value;
+      Data.update(DATA_ID, {$set: { css: this.$.Textarea.style.cssText }});
+    },
+
+    handleFontSize: function (e) {
+      this.$.Textarea.style.fontSize = e.target.value;
+      Data.update(DATA_ID, {$set: { css: this.$.Textarea.style.cssText }});
+    },
+
+    handleTheme: function (e) {
+      if (e.target.value === "") {
+        return;
+      }
+      this.$.Textarea.style.cssText = e.target.value;
+      Data.update(DATA_ID, {$set: { css: this.$.Textarea.style.cssText }});
+    },
+
+    /* Swap color and background-color */
+    toggleLight: function (e) {
+      e.preventDefault();
+      var ta = this.$.Textarea;
+      var color = ta.style.color || "#000000";
+      var bgColor = ta.style.backgroundColor || "#FFFFFF";
+      ta.style.backgroundColor = color;
+      ta.style.color = bgColor;
+      Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
+    },
+
+  });
+
+</script>
