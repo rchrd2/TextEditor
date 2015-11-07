@@ -44,7 +44,7 @@
 
             <div>
               Theme
-              <select name="theme" on-change="handleTheme">
+              <select name="theme" on-change="handleTheme" value=[[cssVals.cssText]]>
                 <option value="">&nbsp;</option>
                 <option value="font-family: Menlo, monospace; letter-spacing: 0.1em; font-weight: bold; padding: 4rem 20%;">Kerouac</option>
                 <option value="font-family: Menlo, monospace; font-size: 12px; background-color: rgb(40, 44, 52); color: rgb(171, 178, 191);">Atom</option>
@@ -61,7 +61,7 @@
               <br/>
               <br/>
               <iron-collapse id="CssCollapse">
-                <textarea id="CssTextarea" rows="8" on-input="cssInput"></textarea>
+                <textarea id="CssTextarea" rows="8" on-input="cssInput" disabled="[[!hasPermission]]"></textarea>
               </iron-collapse>
             </div>
           </form>
@@ -76,11 +76,13 @@
                 <x-led color="#63f5ac">Connected</x-led>
               </template>
               <template is="dom-if" if="[[!connectedStatus]]">
-                <x-led color="#292929">Not connected</x-led>
+                <x-led color="#292929"><b>Not connected</b></x-led>
               </template>
             </div>
             <div class="users flex"></div>
-            <div class="settings" paper-drawer-toggle>Settings</div>
+            <template is="dom-if" if="[[hasPermission]]">
+              <div class="settings" paper-drawer-toggle>Settings</div>
+            </template>
           </div>
         </div>
 
@@ -94,12 +96,13 @@
   Polymer({
     is: 'x-main',
 
+    sessionId: null,
+    hasPermission: false,
+    connectedStatus: false,
+    cssVals: {},
+
     ready: function () {
-      /* Check for permission */
-      this.hasPermission = false;
-      Meteor.call("hasPermission", function (error, result) {
-        this.hasPermission = result;
-      }.bind(this));
+      this.initSession();
 
       /* Load the document */
       var doc = Data.findOne(DATA_ID);
@@ -117,10 +120,24 @@
       Tracker.autorun(function (comp) {
         this.connectedStatus = Meteor.status().connected;
       }.bind(this));
+    },
 
+    initSession: function () {
+      Meteor.call("initSession", function (error, result) {
+        this.sessionId = result;
+        Meteor.call("checkSessionPermissions", this.sessionId, ["owner", "modify"], function (error, result) {
+          this.hasPermission = result;
+          // console.log(this.hasPermission);
+        }.bind(this));
+        // console.log(this.sessionId);
+      }.bind(this));
     },
 
     updateFromDoc: function (doc) {
+      if (doc === undefined) {
+        console.log("Warn: Document was undefined");
+        return;
+      }
       if (this.$.Textarea.value !== doc.value) {
         this.$.Textarea.value = doc.value;
       }
@@ -131,13 +148,14 @@
       }
       this.cssVals = {
         fontFamily: this.$.Textarea.style.fontFamily,
-        fontSize: this.$.Textarea.style.fontSize
+        fontSize: this.$.Textarea.style.fontSize,
+        cssText: this.$.Textarea.style.cssText,
       };
     },
 
     /* Textarea input */
     textareaInput: function (e) {
-      Data.update(DATA_ID, {$set: { value: e.target.value }});
+      this.updateText(e.target.value);
     },
 
     /* Toggle Css */
@@ -149,25 +167,22 @@
     /* Css input */
     cssInput: function (e) {
       this.$.Textarea.style.cssText = e.target.value;
-      Data.update(DATA_ID, {$set: { css: e.target.value }});
+      this.updateCss(e.target.value);
     },
 
     handleFontFamily: function (e) {
       this.$.Textarea.style.fontFamily = e.target.value;
-      Data.update(DATA_ID, {$set: { css: this.$.Textarea.style.cssText }});
+      this.updateCss(e.target.value);
     },
 
     handleFontSize: function (e) {
       this.$.Textarea.style.fontSize = e.target.value;
-      Data.update(DATA_ID, {$set: { css: this.$.Textarea.style.cssText }});
+      this.updateCss(e.target.value);
     },
 
     handleTheme: function (e) {
-      if (e.target.value === "") {
-        return;
-      }
       this.$.Textarea.style.cssText = e.target.value;
-      Data.update(DATA_ID, {$set: { css: this.$.Textarea.style.cssText }});
+      this.updateCss(e.target.value);
     },
 
     /* Swap color and background-color */
@@ -178,7 +193,27 @@
       var bgColor = ta.style.backgroundColor || "#FFFFFF";
       ta.style.backgroundColor = color;
       ta.style.color = bgColor;
-      Data.update(DATA_ID, {$set: { css: ta.style.cssText }});
+      this.updateCss(ta.style.cssText);
+    },
+
+    updateText: function (value) {
+      if (typeof value !== "string") {
+        return;
+      }
+      if (this.sessionId === null || this.hasPermission == false) {
+        return;
+      }
+      Meteor.call("updateText", this.sessionId, value);
+    },
+
+    updateCss: function (value) {
+      if (typeof value !== "string") {
+        return;
+      }
+      if (this.sessionId === null || this.hasPermission == false) {
+        return;
+      }
+      Meteor.call("updateCss", this.sessionId, value);
     },
 
   });
