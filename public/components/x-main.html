@@ -172,17 +172,17 @@
 
     handleFontFamily: function (e) {
       this.$.Textarea.style.fontFamily = e.target.value;
-      this.updateCss(e.target.value);
+      this.updateCss(this.$.Textarea.style.cssText);
     },
 
     handleFontSize: function (e) {
       this.$.Textarea.style.fontSize = e.target.value;
-      this.updateCss(e.target.value);
+      this.updateCss(this.$.Textarea.style.cssText);
     },
 
     handleTheme: function (e) {
       this.$.Textarea.style.cssText = e.target.value;
-      this.updateCss(e.target.value);
+      this.updateCss(this.$.Textarea.style.cssText);
     },
 
     /* Swap color and background-color */
