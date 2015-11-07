@@ -79,7 +79,7 @@
                 <x-led color="#292929"><b>Not connected</b></x-led>
               </template>
             </div>
-            <div class="users flex"></div>
+            <div class="users flex">[[userId]]</div>
             <template is="dom-if" if="[[hasPermission]]">
               <div class="settings" paper-drawer-toggle>Settings</div>
             </template>
@@ -96,13 +96,12 @@
   Polymer({
     is: 'x-main',
 
-    sessionId: null,
     hasPermission: false,
     connectedStatus: false,
     cssVals: {},
 
     ready: function () {
-      this.initSession();
+      this.initUserSession();
 
       /* Load the document */
       var doc = Data.findOne(DATA_ID);
@@ -119,17 +118,6 @@
       }.bind(this));
       Tracker.autorun(function (comp) {
         this.connectedStatus = Meteor.status().connected;
-      }.bind(this));
-    },
-
-    initSession: function () {
-      Meteor.call("initSession", function (error, result) {
-        this.sessionId = result;
-        Meteor.call("checkSessionPermissions", this.sessionId, ["owner", "modify"], function (error, result) {
-          this.hasPermission = result;
-          // console.log(this.hasPermission);
-        }.bind(this));
-        // console.log(this.sessionId);
       }.bind(this));
     },
 
@@ -200,21 +188,95 @@
       if (typeof value !== "string") {
         return;
       }
-      if (this.sessionId === null || this.hasPermission == false) {
+      if (this.hasPermission == false) {
         return;
       }
-      Meteor.call("updateText", this.sessionId, value);
+      Data.update(DATA_ID, {$set: { value: value }});
     },
 
     updateCss: function (value) {
       if (typeof value !== "string") {
         return;
       }
-      if (this.sessionId === null || this.hasPermission == false) {
+      if (this.hasPermission == false) {
         return;
       }
-      Meteor.call("updateCss", this.sessionId, value);
+      Data.update(DATA_ID, {$set: { css: value }});
     },
+
+    /*********************************************************************/
+
+    /**
+     * Optionally creates and Logs in a user including Anonymous users
+     * User accounts are needed to store their permissions.
+     * Permissions are read from headers and updated each time they load the
+     * page.
+     */
+    initUserSession: function () {
+      this.userId = window.localStorage.userId;
+      this.uuid = window.localStorage.uuid;
+
+      var handleUserReady = function (userId) {
+        this.updateUserHeaderPermissions(function () {
+          this.updatePermission();
+        }.bind(this));
+      }.bind(this);
+
+      // Create user
+      if ( ! this.userId || ! this.uuid) {
+        this.uuid = Meteor.uuid();
+        Meteor.call("createUser", {
+            username: this.uuid,
+            password: this.uuid,
+            login: true
+          }, function (error, result) {
+            this.userId = result.id;
+            window.localStorage.setItem("userId", this.userId);
+            window.localStorage.setItem("uuid", this.uuid);
+            handleUserReady()
+          }.bind(this)
+        );
+      } else {
+        Meteor.loginWithPassword(this.uuid, this.uuid, function () {
+          handleUserReady(this.userId)
+        }.bind(this));
+      }
+
+      Tracker.autorun(function () {
+        if (Meteor.status().connected) {
+          // Meteor.loginWithPassword(user, password, [callback])
+          console.log("connected");
+          console.log(Meteor.userId());
+          this.updatePermission();
+          //Meteor.loginWithPassword(this.uuid, this.uuid);
+        } else {
+          console.log("disconnected");
+          console.log(Meteor.userId());
+        }
+      }.bind(this));
+
+    },
+
+    /**
+     * Makes a request to the server to update user headers.
+     * Needs to be called early, before DDP connection is lost,
+     * because of issues with meteor-headers
+     */
+    updateUserHeaderPermissions: function (callback) {
+      Meteor.call("updateUserHeaderPermissions", callback);
+    },
+
+    /**
+     * Makes a call to server to update this.hasPermission
+     */
+    updatePermission: function () {
+      Meteor.call("checkUserPermissions", this.userId, ["owner", "modify"], function (error, result) {
+        this.hasPermission = result;
+      }.bind(this));
+    },
+
+    /*********************************************************************/
+
 
   });
 

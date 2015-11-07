@@ -7,15 +7,6 @@
  * @author Richard Caceres, @rchrd2
  */
 
-SessionPermissions = new Mongo.Collection("SessionPermissions");
-
-SessionPermissions.allow({
-  insert: function (userId, doc) { return false },
-  update: function (userId, doc) { return false },
-  remove: function (userId, doc) { return false },
-});
-
-
 /**
  * Clean headers, because undefined values break meteor-headers
  */
@@ -30,62 +21,33 @@ function cleanHeaders () {
   });
 }
 
-function garbageCollectSessions(days) {
-  var today = new Date();
-	var targetDate = new Date();
-	targetDate.setDate(today.getDate() - days);
-  SessionPermissions.remove({createdAt: {$lt: targetDate}});
-}
-
 Meteor.startup(function () {
 
-  /* Garbage collect old sessions */
-  garbageCollectSessions(30);
-
   Meteor.methods({
+
     /**
      * Since meteor-headers value dissapear we have to store them in the db
-     * @return {String|null}
+     * It relies on the global variable Meteor.user()
      */
-    initSession: function () {
+    updateUserHeaderPermissions: function () {
+      // console.log("server.updatePermissions", Meteor.user());
       var h = headers.get(this);
       var p = h["x-sandstorm-permissions"] || null;
-      var id = null;
-      if (p !== null) {
-        id = SessionPermissions.insert({
-          _id: Meteor.uuid(),
-          x_sandstorm_permissions: String(p),
-          createdAt: new Date(),
-        });
-        id = String(id);
-      }
-      return id;
-    },
-
-    /**
-     * Get the list of permissions
-     * @param {String} sessionId
-     */
-    getSessionPermissions: function (sessionId) {
-      check(sessionId, String);
-      var doc = SessionPermissions.findOne(sessionId);
-      if (doc) {
-        return doc.x_sandstorm_permissions;
-      } else {
-        return "";
+      if (p !== null && Meteor.user()) {
+        Meteor.users.update({_id: Meteor.user()._id}, {$set:{"permissions": String(p)}});
       }
     },
 
     /**
-     * @param {sessionid} string
      * @param {Array} types. Check if user has ANY of these permissions
      * @return {Boolean}
      */
-    checkSessionPermissions: function (sessionId, types) {
-      check(sessionId, String);
+    checkUserPermissions: function (userId, types) {
+      // console.log("checkUserPermissions", userId);
+      check(userId, String);
       check(types, Array);
-      // return false;
-      var p = Meteor.call("getSessionPermissions", sessionId);
+      var user = Meteor.users.findOne(userId);
+      var p = user.permissions || "";
       for (var i = 0; i < types.length; i++) {
         if (p.indexOf(types[i]) !== -1) {
           return true;

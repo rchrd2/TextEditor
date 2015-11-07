@@ -15,25 +15,18 @@ Meteor.startup(function () {
   }
 
   /* Publish the document */
-  Meteor.publish("thedocument", () => Data.find(DATA_ID));
+  Meteor.publish("thedocument", () => Data.find(DATA_ID, {fields: {value:1, css:1}}));
 
   /* Client Permissions */
   Data.allow({
     insert: (userId, doc) => false,
-    update: (userId, doc) => false,
+    update: (userId, doc) => {
+      if (userId === null) {
+        console.log('no userid')
+        return false;
+      }
+      return Meteor.call("checkUserPermissions", userId, ["owner", "modify"])
+    },
     remove: (userId, doc) => false,
-  });
-
-  Meteor.methods({
-    updateText: function (sessionId, value) {
-      check(value, String);
-      check(Meteor.call("checkSessionPermissions", sessionId, ["owner", "modify"]), true);
-      Data.update(DATA_ID, {$set: { value: value }});
-    },
-    updateCss: function (sessionId, value) {
-      check(value, String);
-      check(Meteor.call("checkSessionPermissions", sessionId, ["owner", "modify"]), true);
-      Data.update(DATA_ID, {$set: { css: value }});
-    },
   });
 });
