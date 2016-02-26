@@ -48,6 +48,7 @@
                 <option value="">&nbsp;</option>
                 <option value="font-family: Menlo, monospace; letter-spacing: 0.1em; font-weight: bold; padding: 4rem 20%;">Kerouac</option>
                 <option value="font-family: Menlo, monospace; font-size: 12px; background-color: rgb(40, 44, 52); color: rgb(171, 178, 191);">Atom</option>
+                <option value="font-family: arial, sans-serif; font-size: 13.33px; padding: 3rem 4rem;">Doc</option>
               </select>
             </div>
 
@@ -79,7 +80,7 @@
                 <x-led color="#292929"><b>Not connected</b></x-led>
               </template>
             </div>
-            <div class="users flex">[[userId]]</div>
+            <div class="users flex"></div>
             <template is="dom-if" if="[[hasPermission]]">
               <div class="settings" paper-drawer-toggle>Settings</div>
             </template>
