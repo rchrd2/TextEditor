@@ -1,0 +1,36 @@
+<!--
+<x-led color="#ff000">Online</x-led>
+-->
+
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="x-led">
+
+  <style>
+    :host {}
+
+		.led {
+			display: inline-block;
+			height: .5em;
+			width: .5em;
+			border-radius: 50%;
+			text-align: center;
+			position:relative;
+			top:-2px;
+			/*margin-bottom:6px;*/
+      margin-right: .25em;
+    }
+  </style>
+
+  <template>
+		<div class="led" style$="background-color: {{color}}"></div>
+		<content></content>
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'x-led',
+  });
+</script>

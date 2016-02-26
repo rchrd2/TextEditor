@@ -1,0 +1,9 @@
+{
+  "name": "default",
+  "dependencies": {
+    "polymer": "~1.2.1",
+    "webcomponentsjs": "~0.7.15",
+    "iron-elements": "PolymerElements/iron-elements#~1.0.4",
+    "paper-elements": "PolymerElements/paper-elements#~1.0.5"
+  }
+}

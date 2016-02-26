@@ -1,0 +1,284 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<!-- polymer components -->
+<link rel="import" href="/bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="/bower_components/paper-styles/paper-styles.html">
+
+<link rel="import" href="./x-led.html">
+
+<dom-module id="x-main">
+
+  <style>
+    :host {}
+  </style>
+
+  <template>
+    <div>
+      <paper-drawer-panel disable-swipe="true" disable-edge-swipe="true"
+                          force-narrow right-drawer>
+        <div drawer class="drawer">
+          <form>
+            <div class="drawer-title"><b>Document Settings</b></div>
+
+            <div>
+              Font Family
+              <select name="font-family" on-change="handleFontFamily" value=[[cssVals.fontFamily]]>
+                <option value="Menlo, monospace">monospace</option>
+                <option value="sans-serif">sans-serif</option>
+                <option value="serif">serif</option>
+              </select>
+            </div>
+
+            <div>
+              Font Size
+              <select name="font-size" on-change="handleFontSize" value=[[cssVals.fontSize]]>
+                <option value="22px">22</option>
+                <option value="16px">16</option>
+                <option value="14px">14</option>
+                <option value="12px">12</option>
+                <option value="10px">10</option>
+              </select>
+            </div>
+
+            <div>
+              Theme
+              <select name="theme" on-change="handleTheme" value=[[cssVals.cssText]]>
+                <option value="">&nbsp;</option>
+                <option value="font-family: Menlo, monospace; letter-spacing: 0.1em; font-weight: bold; padding: 4rem 20%;">Kerouac</option>
+                <option value="font-family: Menlo, monospace; font-size: 12px; background-color: rgb(40, 44, 52); color: rgb(171, 178, 191);">Atom</option>
+                <option value="font-family: arial, sans-serif; font-size: 13.33px; padding: 3rem 4rem;">Doc</option>
+              </select>
+            </div>
+
+            <div>
+              Light / Dark <button on-click="toggleLight">Toggle</button>
+            </div>
+
+            <div>
+              <br/>
+              <button on-click="toggleCss">Toggle Raw CSS</button>
+              <br/>
+              <br/>
+              <iron-collapse id="CssCollapse">
+                <textarea id="CssTextarea" rows="8" on-input="cssInput" disabled="[[!hasPermission]]"></textarea>
+              </iron-collapse>
+            </div>
+          </form>
+        </div>
+        <div main class="flex layout vertical">
+          <textarea id="Textarea" class="flex" autofocus="true"
+                    disabled="[[!hasPermission]]" on-input="textareaInput"></textarea>
+
+          <div class="footer layout horizontal">
+            <div class="status">
+              <template is="dom-if" if="[[connectedStatus]]">
+                <x-led color="#63f5ac">Connected</x-led>
+              </template>
+              <template is="dom-if" if="[[!connectedStatus]]">
+                <x-led color="#292929"><b>Not connected</b></x-led>
+              </template>
+            </div>
+            <div class="users flex"></div>
+            <template is="dom-if" if="[[hasPermission]]">
+              <div class="settings" paper-drawer-toggle>Settings</div>
+            </template>
+          </div>
+        </div>
+
+      </paper-drawer-panel>
+    </div>
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'x-main',
+
+    hasPermission: false,
+    connectedStatus: false,
+    cssVals: {},
+
+    ready: function () {
+      this.initUserSession();
+
+      /* Load the document */
+      var doc = Data.findOne(DATA_ID);
+      this.updateFromDoc(doc);
+
+      /*
+       * Tracker.autorun is magic in that it somehow knows what the reactive
+       * values are within.
+       * Info: https://github.com/meteor/meteor/wiki/Tracker-Manual
+       */
+      Tracker.autorun(function (comp) {
+        var doc = Data.findOne(DATA_ID);
+        this.updateFromDoc(doc);
+      }.bind(this));
+      Tracker.autorun(function (comp) {
+        this.connectedStatus = Meteor.status().connected;
+      }.bind(this));
+    },
+
+    updateFromDoc: function (doc) {
+      if (doc === undefined) {
+        console.log("Warn: Document was undefined");
+        return;
+      }
+      if (this.$.Textarea.value !== doc.value) {
+        this.$.Textarea.value = doc.value;
+      }
+      if (this.$.CssTextarea.value !== doc.css) {
+        this.$.CssTextarea.value = doc.css;
+        this.$.Textarea.style.cssText = doc.css;
+        document.body.style.backgroundColor = this.$.Textarea.style.backgroundColor;
+      }
+      this.cssVals = {
+        fontFamily: this.$.Textarea.style.fontFamily,
+        fontSize: this.$.Textarea.style.fontSize,
+        cssText: this.$.Textarea.style.cssText,
+      };
+    },
+
+    /* Textarea input */
+    textareaInput: function (e) {
+      this.updateText(e.target.value);
+    },
+
+    /* Toggle Css */
+    toggleCss: function (e) {
+      e.preventDefault();
+      this.$.CssCollapse.toggle();
+    },
+
+    /* Css input */
+    cssInput: function (e) {
+      this.$.Textarea.style.cssText = e.target.value;
+      this.updateCss(e.target.value);
+    },
+
+    handleFontFamily: function (e) {
+      this.$.Textarea.style.fontFamily = e.target.value;
+      this.updateCss(this.$.Textarea.style.cssText);
+    },
+
+    handleFontSize: function (e) {
+      this.$.Textarea.style.fontSize = e.target.value;
+      this.updateCss(this.$.Textarea.style.cssText);
+    },
+
+    handleTheme: function (e) {
+      this.$.Textarea.style.cssText = e.target.value;
+      this.updateCss(this.$.Textarea.style.cssText);
+    },
+
+    /* Swap color and background-color */
+    toggleLight: function (e) {
+      e.preventDefault();
+      var ta = this.$.Textarea;
+      var color = ta.style.color || "#000000";
+      var bgColor = ta.style.backgroundColor || "#FFFFFF";
+      ta.style.backgroundColor = color;
+      ta.style.color = bgColor;
+      this.updateCss(ta.style.cssText);
+    },
+
+    updateText: function (value) {
+      if (typeof value !== "string") {
+        return;
+      }
+      if (this.hasPermission == false) {
+        return;
+      }
+      Data.update(DATA_ID, {$set: { value: value }});
+    },
+
+    updateCss: function (value) {
+      if (typeof value !== "string") {
+        return;
+      }
+      if (this.hasPermission == false) {
+        return;
+      }
+      Data.update(DATA_ID, {$set: { css: value }});
+    },
+
+    /*********************************************************************/
+
+    /**
+     * Optionally creates and Logs in a user including Anonymous users
+     * User accounts are needed to store their permissions.
+     * Permissions are read from headers and updated each time they load the
+     * page.
+     */
+    initUserSession: function () {
+      this.userId = window.localStorage.userId;
+      this.uuid = window.localStorage.uuid;
+
+      var handleUserReady = function (userId) {
+        this.updateUserHeaderPermissions(function () {
+          this.updatePermission();
+        }.bind(this));
+      }.bind(this);
+
+      // Create user
+      if ( ! this.userId || ! this.uuid) {
+        this.uuid = Meteor.uuid();
+        Meteor.call("createUser", {
+            username: this.uuid,
+            password: this.uuid,
+            login: true
+          }, function (error, result) {
+            this.userId = result.id;
+            window.localStorage.setItem("userId", this.userId);
+            window.localStorage.setItem("uuid", this.uuid);
+            handleUserReady()
+          }.bind(this)
+        );
+      } else {
+        Meteor.loginWithPassword(this.uuid, this.uuid, function () {
+          handleUserReady(this.userId)
+        }.bind(this));
+      }
+
+      Tracker.autorun(function () {
+        if (Meteor.status().connected) {
+          // Meteor.loginWithPassword(user, password, [callback])
+          console.log("connected");
+          console.log(Meteor.userId());
+          this.updatePermission();
+          //Meteor.loginWithPassword(this.uuid, this.uuid);
+        } else {
+          console.log("disconnected");
+          console.log(Meteor.userId());
+        }
+      }.bind(this));
+
+    },
+
+    /**
+     * Makes a request to the server to update user headers.
+     * Needs to be called early, before DDP connection is lost,
+     * because of issues with meteor-headers
+     */
+    updateUserHeaderPermissions: function (callback) {
+      Meteor.call("updateUserHeaderPermissions", callback);
+    },
+
+    /**
+     * Makes a call to server to update this.hasPermission
+     */
+    updatePermission: function () {
+      Meteor.call("checkUserPermissions", this.userId, ["owner", "modify"], function (error, result) {
+        this.hasPermission = result;
+      }.bind(this));
+    },
+
+    /*********************************************************************/
+
+
+  });
+
+</script>
