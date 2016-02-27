@@ -96,7 +96,6 @@
 <script>
   Polymer({
     is: 'x-main',
-
     hasPermission: false,
     connectedStatus: false,
     cssVals: {},
@@ -214,40 +213,36 @@
      * page.
      */
     initUserSession: function () {
-      this.userId = window.localStorage.getItem("userId");
       this.uuid = window.localStorage.getItem("uuid");
-      console.log(this.userId);
       console.log(this.uuid);
 
-      var handleUserReady = function () {
-        this.updateUserHeaderPermissions(function () {
-          this.updatePermission();
-        }.bind(this));
-      }.bind(this);
-
-      // Create user
-      if ( ! this.userId || ! this.uuid) {
+      // Get or create user
+      if ( ! this.uuid) {
         this.uuid = Meteor.uuid();
         Meteor.call("createUser", {
-            username: this.uuid,
-            password: this.uuid,
-            login: true
-          }, function (error, result) {
-            console.log(result);
-            if (error) {
-              console.log(error);
-            }
-            this.userId = result.id;
-            window.localStorage.setItem("userId", this.userId);
-            window.localStorage.setItem("uuid", this.uuid);
-            handleUserReady()
-          }.bind(this)
-        );
-      } else {
-        Meteor.loginWithPassword(this.uuid, this.uuid, function () {
-          handleUserReady()
+          username: this.uuid,
+          password: this.uuid,
+          login: true
+        }, function (error, result) {
+          if (error) {
+            console.log(error);
+          }
+          window.localStorage.setItem("uuid", this.uuid);
+          // There's an issue where `login: true` isn't doing the trick
+          // When running in Sandstorm iframe, so we force a login.
+          if ( ! Meteor.userId()) {
+            Meteor.loginWithPassword(this.uuid, this.uuid)
+          }
         }.bind(this));
+      } else {
+        Meteor.loginWithPassword(this.uuid, this.uuid)
       }
+
+      var self = this;
+      Tracker.autorun(function () {
+        var userId = Meteor.userId();
+        self.handleUserReady();
+      });
 
       Tracker.autorun(function () {
         if (Meteor.status().connected) {
@@ -257,8 +252,14 @@
           console.log("disconnected");
           console.log(Meteor.userId());
         }
-      }.bind(this));
+      });
+    },
 
+    handleUserReady: function () {
+      console.log('handleUserReady');
+      this.updateUserHeaderPermissions(function () {
+        this.updatePermission();
+      }.bind(this));
     },
 
     /**
@@ -274,14 +275,12 @@
      * Makes a call to server to update this.hasPermission
      */
     updatePermission: function () {
-      Meteor.call("checkUserPermissions", this.userId, ["owner", "modify"], function (error, result) {
+      Meteor.call("checkUserPermissions", Meteor.userId(), ["owner", "modify"], function (error, result) {
         this.hasPermission = result;
       }.bind(this));
     },
 
     /*********************************************************************/
-
-
   });
 
 </script>

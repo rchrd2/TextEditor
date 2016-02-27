@@ -1,3 +1,7 @@
+# 0.0.4
+ * There are issues with localStorage within the Sandstorm iframe. This affects
+   reconnecting to a document. A work-around is in place.
+
 # 0.0.3
  * Add document settings drawer with themes and css editor
  * Switch to Polymer for UI
