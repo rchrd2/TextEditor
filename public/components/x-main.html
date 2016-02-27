@@ -214,10 +214,12 @@
      * page.
      */
     initUserSession: function () {
-      this.userId = window.localStorage.userId;
-      this.uuid = window.localStorage.uuid;
+      this.userId = window.localStorage.getItem("userId");
+      this.uuid = window.localStorage.getItem("uuid");
+      console.log(this.userId);
+      console.log(this.uuid);
 
-      var handleUserReady = function (userId) {
+      var handleUserReady = function () {
         this.updateUserHeaderPermissions(function () {
           this.updatePermission();
         }.bind(this));
@@ -231,6 +233,10 @@
             password: this.uuid,
             login: true
           }, function (error, result) {
+            console.log(result);
+            if (error) {
+              console.log(error);
+            }
             this.userId = result.id;
             window.localStorage.setItem("userId", this.userId);
             window.localStorage.setItem("uuid", this.uuid);
@@ -239,17 +245,14 @@
         );
       } else {
         Meteor.loginWithPassword(this.uuid, this.uuid, function () {
-          handleUserReady(this.userId)
+          handleUserReady()
         }.bind(this));
       }
 
       Tracker.autorun(function () {
         if (Meteor.status().connected) {
-          // Meteor.loginWithPassword(user, password, [callback])
           console.log("connected");
           console.log(Meteor.userId());
-          this.updatePermission();
-          //Meteor.loginWithPassword(this.uuid, this.uuid);
         } else {
           console.log("disconnected");
           console.log(Meteor.userId());

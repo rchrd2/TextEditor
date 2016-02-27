@@ -10,5 +10,14 @@
 </head>
 
 <body class="fullbleed layout vertical">
-  <x-main />
+  <!-- <x-main /> -->
+  <script>
+console.log(window.localStorage);
+if (window.localStorage.getItem('foo') === null) {
+  window.localStorage.setItem('foo', 'this value was stored in localStorage');
+  document.write('No value found in localStorage. Calling set.');
+} else {
+  document.write(window.localStorage.getItem('foo'));
+}
+  </script>
 </body>
