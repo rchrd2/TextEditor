@@ -25,6 +25,12 @@ body {
   line-height: 1.45em;
 }
 
+/* Disable default browser disabled styles */
+#Textarea:disabled {
+  background-color: initial;
+  color: initial;
+}
+
 /* Drawer */
 .drawer {
   background-color:#fff;
