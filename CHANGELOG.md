@@ -1,4 +1,6 @@
 # 0.0.5
+ * Add support for TAB key.
+ * Disable default browser disabled styles.
  * Update permissions to use the new kenton:accounts-sandstorm package, which
    simplifies the codebase, and also eliminates the creation of user accounts
    in the database for anonymous users. Thanks Kenton!
