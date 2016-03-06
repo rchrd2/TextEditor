@@ -69,7 +69,8 @@
         </div>
         <div main class="flex layout vertical">
           <textarea id="Textarea" class="flex" autofocus="true"
-                    disabled="[[!hasPermission]]" on-input="textareaInput"></textarea>
+                    disabled="[[!hasPermission]]" on-input="textareaInput"
+                    on-keydown="textareaKeydown"></textarea>
 
           <div class="footer layout horizontal">
             <div class="status">
@@ -152,6 +153,27 @@
     /* Textarea input */
     textareaInput: function (e) {
       this.updateText(e.target.value);
+    },
+
+    textareaKeydown: function (e) {
+      if (e.keyCode === 9) {
+        e.preventDefault();
+        this.insertAtCaret(e.target, "\t");
+        this.updateText(e.target.value);
+      }
+    },
+
+    /**
+     * @param {element} el
+     * @param {string} insertion
+     */
+    insertAtCaret: function (el, insertion) {
+      var prevSelectionStart = el.selectionStart;
+      el.value = el.value.substring(0, el.selectionStart) +
+                 insertion +
+                 el.value.substring(el.selectionEnd);
+      el.selectionStart = prevSelectionStart + insertion.length;
+      el.selectionEnd = el.selectionStart;
     },
 
     /* Toggle Css */
