@@ -21,11 +21,7 @@ Meteor.startup(function () {
   Data.allow({
     insert: (userId, doc) => false,
     update: (userId, doc) => {
-      if (userId === null) {
-        console.log('no userid')
-        return false;
-      }
-      return Meteor.call("checkUserPermissions", userId, ["owner", "modify"])
+      return Meteor.call("checkSandstormUserPermissions", ["owner", "modify"])
     },
     remove: (userId, doc) => false,
   });

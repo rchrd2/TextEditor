@@ -101,8 +101,6 @@
     cssVals: {},
 
     ready: function () {
-      this.initUserSession();
-
       /* Load the document */
       var doc = Data.findOne(DATA_ID);
       this.updateFromDoc(doc);
@@ -118,6 +116,16 @@
       }.bind(this));
       Tracker.autorun(function (comp) {
         this.connectedStatus = Meteor.status().connected;
+      }.bind(this));
+      Tracker.autorun(function (comp) {
+        this.sandstormUser = Meteor.sandstormUser();
+        var sandstormUser = Meteor.sandstormUser();
+        if (sandstormUser && (sandstormUser.permissions.indexOf('owner') >= 0 ||
+                sandstormUser.permissions.indexOf('modify') >= 0)) {
+          this.hasPermission = true;
+        } else {
+          this.hasPermission = false;
+        }
       }.bind(this));
     },
 
@@ -204,83 +212,6 @@
       Data.update(DATA_ID, {$set: { css: value }});
     },
 
-    /*********************************************************************/
-
-    /**
-     * Optionally creates and Logs in a user including Anonymous users
-     * User accounts are needed to store their permissions.
-     * Permissions are read from headers and updated each time they load the
-     * page.
-     */
-    initUserSession: function () {
-      this.uuid = window.localStorage.getItem("uuid");
-      console.log(this.uuid);
-
-      // Get or create user
-      if ( ! this.uuid) {
-        this.uuid = Meteor.uuid();
-        Meteor.call("createUser", {
-          username: this.uuid,
-          password: this.uuid,
-          login: true
-        }, function (error, result) {
-          if (error) {
-            console.log(error);
-          }
-          window.localStorage.setItem("uuid", this.uuid);
-          // There's an issue where `login: true` isn't doing the trick
-          // When running in Sandstorm iframe, so we force a login.
-          if ( ! Meteor.userId()) {
-            Meteor.loginWithPassword(this.uuid, this.uuid)
-          }
-        }.bind(this));
-      } else {
-        Meteor.loginWithPassword(this.uuid, this.uuid)
-      }
-
-      var self = this;
-      Tracker.autorun(function () {
-        var userId = Meteor.userId();
-        self.handleUserReady();
-      });
-
-      Tracker.autorun(function () {
-        if (Meteor.status().connected) {
-          console.log("connected");
-          console.log(Meteor.userId());
-        } else {
-          console.log("disconnected");
-          console.log(Meteor.userId());
-        }
-      });
-    },
-
-    handleUserReady: function () {
-      console.log('handleUserReady');
-      this.updateUserHeaderPermissions(function () {
-        this.updatePermission();
-      }.bind(this));
-    },
-
-    /**
-     * Makes a request to the server to update user headers.
-     * Needs to be called early, before DDP connection is lost,
-     * because of issues with meteor-headers
-     */
-    updateUserHeaderPermissions: function (callback) {
-      Meteor.call("updateUserHeaderPermissions", callback);
-    },
-
-    /**
-     * Makes a call to server to update this.hasPermission
-     */
-    updatePermission: function () {
-      Meteor.call("checkUserPermissions", Meteor.userId(), ["owner", "modify"], function (error, result) {
-        this.hasPermission = result;
-      }.bind(this));
-    },
-
-    /*********************************************************************/
   });
 
 </script>

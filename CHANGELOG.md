@@ -1,3 +1,8 @@
+# 0.0.5
+ * Update permissions to use the new kenton:accounts-sandstorm package, which
+   simplifies the codebase, and also eliminates the creation of user accounts
+   in the database for anonymous users. Thanks Kenton!
+
 # 0.0.4
  * There are issues with localStorage within the Sandstorm iframe. This affects
    reconnecting to a document. A work-around is in place.
