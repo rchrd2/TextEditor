@@ -1,0 +1,22 @@
+meteor-base             # Packages every Meteor app needs to have
+mongo                   # The database Meteor supports right now
+#blaze-html-templates    # Compile .html files into Meteor Blaze views
+session                 # Client-side reactive dictionary for your app
+jquery                  # Helpful client-side library
+tracker                 # Meteor's client-side reactive programming library
+
+standard-minifiers      # JS/CSS minifiers run for production mode
+es5-shim                # ECMAScript 5 compatibility for older browsers.
+ecmascript              # Enable ECMAScript2015+ syntax in app code
+
+static-html
+
+# These are needed for headers to check Sandstorm permissions
+webapp
+check
+
+# These are Sandstorm-specific packages
+jacksingleton:accounts-sandstorm-dev@=0.1.1
+
+# kenton:accounts-sandstorm@d1bb02ed7fa26d302cc31ee0ec28afc5a55f6b6f
+kenton:accounts-sandstorm
